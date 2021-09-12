@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
+using TenPinBowling.Api.Model.Config;
 
 namespace TenPinBowling.Api.Features.CalculateScores
 {       
@@ -12,18 +13,18 @@ namespace TenPinBowling.Api.Features.CalculateScores
         /// Initializes a new instance of the <see cref="CalculateScoresValidator"/> class.
         /// </summary>
         /// <param name="configuration">The configuration</param>
-        public CalculateScoresValidator(IConfiguration configuration)
+        public CalculateScoresValidator(AppSettings appSettings)
         {
             //Validate if PinsDowned is empty
             RuleFor(m => m.PinsDowned).NotEmpty().WithMessage("Please enter the pins downed");
 
             //Validate if the total pins downed in a throw does not exceed maximum pins per throw 
-            var maxPinsPerThrow = configuration.GetValue<int>("MaxPinsPerThrow");
+            var maxPinsPerThrow = appSettings.MaxPinsPerFrame;
             RuleForEach(m => m.PinsDowned).InclusiveBetween(0, maxPinsPerThrow)
                 .WithMessage($"Pins downed should be between 0 and {maxPinsPerThrow}");
 
             //Validate if the total throws do not exceed the maximum allowed throws 
-            var maxThrows = configuration.GetValue<int>("MaxThrows");
+            var maxThrows = appSettings.MaxThrows;
             RuleFor(m => m.PinsDowned.Length).LessThanOrEqualTo(maxThrows)
                 .WithMessage($"Number of throws cannot exceed {maxThrows}");
 

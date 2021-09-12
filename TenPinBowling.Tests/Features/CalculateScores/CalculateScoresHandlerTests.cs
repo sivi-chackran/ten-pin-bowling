@@ -10,17 +10,17 @@ namespace TenPinBowling.Tests.Features.CalculateScores
         [Fact]
         public void CalculateScores_AllGutterBall()
         {
-            var handler = new CalculateScoresHandler(Configuration);
+            var handler = new CalculateScoresHandler(appSettings);
 
-            int[] input = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+            int[] input = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-            string[] frameProgressScores = { "0","0","0","0","0","0","0","0","0","0" };
+            string[] frameProgressScores = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
             var expectedResponse = new CalculateScoresResponse
             {
                 FrameProgressScores = frameProgressScores,
                 GameCompleted = true
             };
-            
+
             var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
                 default);
 
@@ -31,11 +31,11 @@ namespace TenPinBowling.Tests.Features.CalculateScores
         [Fact]
         public void CalculateScores_PerfectGame()
         {
-            var handler = new CalculateScoresHandler(Configuration);
+            var handler = new CalculateScoresHandler(appSettings);
 
             int[] input = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
 
-            string[] frameProgressScores = { "30","60","90","120","150","180","210","240","270","300" };
+            string[] frameProgressScores = { "30", "60", "90", "120", "150", "180", "210", "240", "270", "300" };
             var expectedResponse = new CalculateScoresResponse
             {
                 FrameProgressScores = frameProgressScores,
@@ -50,9 +50,9 @@ namespace TenPinBowling.Tests.Features.CalculateScores
         }
 
         [Fact]
-        public void CalculateScores_6FramesCompleted()
+        public void CalculateScores_GameInProgress_6FramesCompleted()
         {
-            var handler = new CalculateScoresHandler(Configuration);
+            var handler = new CalculateScoresHandler(appSettings);
 
             int[] input = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
@@ -71,13 +71,34 @@ namespace TenPinBowling.Tests.Features.CalculateScores
         }
 
         [Fact]
-        public void CalculateScores_7FramesCompletedWithSparesAndStrike()
+        public void CalculateScores_GameInProgress_ThirdFrameIncomplete()
         {
-            var handler = new CalculateScoresHandler(Configuration);
+            var handler = new CalculateScoresHandler(appSettings);
 
-            int[] input = { 1,1,1,1,9,1,2,8,9,1,10,10 };
+            int[] input = { 6, 3, 5, 2, 7 };
 
-            string[] frameProgressScores = { "2", "4", "16", "35", "55", "*","*" };
+            string[] frameProgressScores = { "9", "16", "*" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = false
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameInProgress_WithStrikeAndSpare()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 1, 1, 1, 1, 9, 1, 2, 8, 9, 1, 10, 10 };
+
+            string[] frameProgressScores = { "2", "4", "16", "35", "55", "*", "*" };
             var expectedResponse = new CalculateScoresResponse
             {
                 FrameProgressScores = frameProgressScores,
@@ -94,15 +115,120 @@ namespace TenPinBowling.Tests.Features.CalculateScores
         [Fact]
         public void CalculateScores_OneThrowCompletedInLastFrame()
         {
-            var handler = new CalculateScoresHandler(Configuration);
+            var handler = new CalculateScoresHandler(appSettings);
 
-            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 6};
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 6 };
 
-            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "*"};
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "*" };
             var expectedResponse = new CalculateScoresResponse
             {
                 FrameProgressScores = frameProgressScores,
                 GameCompleted = false
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameInProgress_SpareInLastFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 6, 4 };
+
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "*" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = false
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameComplete_StrikeInLastFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 10, 4, 3 };
+
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "106" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = true
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameComplete_StrikeAndSpareInLastFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 10, 7, 3 };
+
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "109" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = true
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameComplete_AllStrikeInLastFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 10, 10, 10 };
+
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "119" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = true
+            };
+
+            var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                default);
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public void CalculateScores_GameComplete_NormalLastFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+
+            int[] input = { 10, 1, 1, 1, 9, 1, 2, 8, 1, 9, 1, 5, 4, 10, 9, 0, 4, 5 };
+
+            string[] frameProgressScores = { "12", "14", "25", "28", "37", "52", "61", "80", "89", "98" };
+            var expectedResponse = new CalculateScoresResponse
+            {
+                FrameProgressScores = frameProgressScores,
+                GameCompleted = true
             };
 
             var actualResponse = handler.Handle(new CalculateScoresRequest { PinsDowned = input },

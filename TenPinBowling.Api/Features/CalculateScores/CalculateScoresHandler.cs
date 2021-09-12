@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TenPinBowling.Api.Model.Config;
 
 namespace TenPinBowling.Api.Features.CalculateScores
 {
@@ -12,10 +12,10 @@ namespace TenPinBowling.Api.Features.CalculateScores
     /// </summary>
     public class CalculateScoresHandler : IRequestHandler<CalculateScoresRequest, CalculateScoresResponse>
     {
-        private readonly IConfiguration _configuration;
-        public CalculateScoresHandler(IConfiguration configuration)
+        private readonly AppSettings _appSettings;
+        public CalculateScoresHandler(AppSettings appSettings)
         {
-            _configuration = configuration;
+            _appSettings = appSettings;
         }
 
         public Task<CalculateScoresResponse> Handle(CalculateScoresRequest request, CancellationToken cancellationToken)
@@ -26,9 +26,9 @@ namespace TenPinBowling.Api.Features.CalculateScores
 
             var frameScores = new List<string>();
 
-            var maxFrames = _configuration.GetValue<int>("MaxFrames");
-            var maxPins = _configuration.GetValue<int>("MaxPinsPerThrow");
-            
+            var maxFrames = _appSettings.MaxFrames;
+            var maxPins = _appSettings.MaxPinsPerFrame;
+
             while (throwIndex < request.PinsDowned.Length && frameIndex < maxFrames)
             {
                 var isCalculationPossible = true;

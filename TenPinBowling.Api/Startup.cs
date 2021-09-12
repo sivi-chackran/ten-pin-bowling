@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TenPinBowling.Api.Extensions;
 
 namespace TenPinBowling.Api
 {
@@ -25,8 +26,12 @@ namespace TenPinBowling.Api
             services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<Startup>());
 
-            services.AddSingleton(Configuration);
-            services.AddSwaggerGen();
+            services.ConfigureSettings(Configuration);
+
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Ten Pin Bowling", Version = "v1"} );
+            });
 
             services.AddMediatR(typeof(Startup));
         }
@@ -46,7 +51,10 @@ namespace TenPinBowling.Api
             app.UseRewriter(option);
 
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1");
+            });
 
             app.UseMvc();
         }

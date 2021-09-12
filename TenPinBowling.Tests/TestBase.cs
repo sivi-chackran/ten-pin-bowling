@@ -1,22 +1,16 @@
-using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.IO;
+using TenPinBowling.Api.Model.Config;
 
 namespace TenPinBowling.Tests
 {
     public class TestBase
     {
 
-        public IConfigurationRoot Configuration { get; private set; }
+        protected readonly AppSettings appSettings;
         public TestBase()
         {
-            Configuration = GetIConfigurationRoot();
-        }
-
-        public static IConfigurationRoot GetIConfigurationRoot()
-        {
-            return new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
+            appSettings = JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText("appsettings.json"));
         }
     }
 }

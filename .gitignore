@@ -7,3 +7,4 @@
 /.vs
 /TenPinBowling.Tests/bin/Debug/netcoreapp3.1
 /TenPinBowling.Tests/obj
+/TenPinBowling.Api/TenPinBowling.Api.csproj.user
