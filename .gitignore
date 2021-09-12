@@ -5,3 +5,5 @@
 /TenPinBowling.Api/bin/Debug/netcoreapp3.1
 /TenPinBowling.Api/obj
 /.vs
+/TenPinBowling.Tests/bin/Debug/netcoreapp3.1
+/TenPinBowling.Tests/obj
