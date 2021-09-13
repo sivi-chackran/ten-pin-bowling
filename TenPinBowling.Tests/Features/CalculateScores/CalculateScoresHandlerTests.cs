@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
 using TenPinBowling.Api.Features.CalculateScores;
+using TenPinBowling.Common.Exceptions;
+using TenPinBowling.Common.Model;
 using Xunit;
 
 namespace TenPinBowling.Tests.Features.CalculateScores
@@ -236,6 +239,25 @@ namespace TenPinBowling.Tests.Features.CalculateScores
 
             Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
                 JsonConvert.SerializeObject(actualResponse.Result));
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task CalculateScores_InvalidNumberOfPinsDownedInFrame()
+        {
+            var handler = new CalculateScoresHandler(appSettings);
+            int[] input = { 10,0,9,10,2,9,3,6,10,1,5,7,0,0,0,2 };
+
+            var expectedResponse = new Error
+            {
+                ErrorType = "BadRequest",
+                ErrorMessage = "Pins downed in a frame cannot exceed 10 - pinsDowned[4] + pinsDowned[5]"
+            };
+
+            var actualResponse = await Assert.ThrowsAsync<BadRequestException>( () => handler.Handle(new CalculateScoresRequest { PinsDowned = input },
+                    default));
+
+            Assert.Equal(JsonConvert.SerializeObject(expectedResponse),
+                JsonConvert.SerializeObject(actualResponse.Error));
         }
     }
 }

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using System.IO;
-using TenPinBowling.Api.Model.Config;
+using TenPinBowling.Common.Model.Config;
 
 namespace TenPinBowling.Tests
 {

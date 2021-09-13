@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TenPinBowling.Api.Model.Config;
+using TenPinBowling.Common.Exceptions;
+using TenPinBowling.Common.Model.Config;
 
 namespace TenPinBowling.Api.Features.CalculateScores
 {
@@ -56,8 +57,20 @@ namespace TenPinBowling.Api.Features.CalculateScores
                     //normal frame
                     else
                     {
-                        progressScore += request.PinsDowned[throwIndex]
+                        var pinsDownedinFrame = request.PinsDowned[throwIndex]
                             + request.PinsDowned[throwIndex + 1];
+
+                        if(pinsDownedinFrame > maxPins)
+                        {
+                            throw new BadRequestException(new Common.Model.Error 
+                                { 
+                                    ErrorType = "BadRequest", 
+                                    ErrorMessage = $"Pins downed in a frame cannot exceed {maxPins} " +
+                                    $"- pinsDowned[{throwIndex}] + pinsDowned[{throwIndex + 1}]" 
+                                });
+                        }
+
+                        progressScore += pinsDownedinFrame;
 
                         throwIndex += 2;
                     }

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
-using Microsoft.Extensions.Configuration;
-using TenPinBowling.Api.Model.Config;
+using TenPinBowling.Common.Model.Config;
 
 namespace TenPinBowling.Api.Features.CalculateScores
 {       

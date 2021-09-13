@@ -1,4 +1,4 @@
-﻿namespace TenPinBowling.Api.Model.Config
+﻿namespace TenPinBowling.Common.Model.Config
 {
     public class AppSettings
     {

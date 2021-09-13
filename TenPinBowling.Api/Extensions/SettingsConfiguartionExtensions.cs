@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using TenPinBowling.Api.Model.Config;
+using TenPinBowling.Common.Model.Config;
 
 namespace TenPinBowling.Api.Extensions
 {
